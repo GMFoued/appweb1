@@ -41,51 +41,19 @@ public class Client {
 	public void setSalaire(double salaire) {
 		Salaire = salaire;
 	}
-	
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((Fonction == null) ? 0 : Fonction.hashCode());
-		result = prime * result + ((Id == null) ? 0 : Id.hashCode());
-		result = prime * result + ((Nom == null) ? 0 : Nom.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(Salaire);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		return result;
+
+	public Client(String nom, String fonction, double salaire) {
+		super();
+		Nom = nom;
+		Fonction = fonction;
+		Salaire = salaire;
 	}
 	
 	
-	@Override
+
 	
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if(obj == null)
-			return false;
-		if(getClass() != obj.getClass())
-			return false;
-		Client other = (Client) obj;
-		if(Fonction == null) {
-			if(other.Fonction != null)
-				return false;
-		} else if(!Fonction.equals(other.Fonction))
-			return false;
-		if(Id == null) {
-			if(other.Id != null)
-				return false;
-		}else if(!Id.equals(other.Id))
-			return false;
-		if(Nom == null) {
-			if(other.Nom != null)
-				return false;
-		}else if(!Nom.equals(other.Nom))
-			return false;
-		if(Double.doubleToLongBits(Salaire) != Double.doubleToLongBits(other.Salaire))
-			return false;
-		return true;
-	}
+	
+
 
 }
 

@@ -7,3 +7,4 @@ import net.devinfoplus.spring.model.Client;
 public interface ClientRepository extends JpaRepository <Client,Long> {
 
 }
+
