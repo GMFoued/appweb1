@@ -2,72 +2,93 @@ package net.devinfoplus.spring.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.devinfoplus.spring.model.Client;
-
+import net.devinfoplus.spring.repository.ClientRepository;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping({"/clients"})
+@RequestMapping("/api")
 public class ClientController {
+		
+	@Autowired
 	
-	private List<Client> clients = createList();
+	ClientRepository clientRepository;
 	
-	@GetMapping(produces ="application/json")
-	public List<Client> fisrtPage(){
-		return clients;
-	}
+	@GetMapping("/clients")
+	public ResponseEntity<List<Client>> getAllclients(@RequestParam(required = false) String Nom){
+		try {
+			List<Client> clients = new ArrayList<Client>();
+			if(Nom == null)
+				clientRepository.findAll().forEach(clients :: add);
 	
-	@DeleteMapping(path = { "/{id}" })
-	public Client delete(@PathVariable("id") int id) {
-		Client deletecl = null;
-		for(Client cl : clients) {
-			if(cl.getId().equals("id")) {
-				clients.remove(cl);
-				deletecl = cl;
-				break;
+			if(clients.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+				
 			}
+			
+			return new ResponseEntity<>(clients,HttpStatus.OK);
+			
+		} catch (Exception e) {
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return deletecl;
+	}
+
+	
+	@GetMapping("/clients/{id}")
+	public ResponseEntity<Client> getClientById(@PathVariable("id") long id){
+		Optional<Client> clientData = clientRepository.findById(id);
+		
+		if(clientData.isPresent()) {
+			return new ResponseEntity<>(clientData.get(),HttpStatus.OK);
+			
+		}else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@PostMapping("/clients")
+	public ResponseEntity<Client> createClient(@RequestBody Client client){
+		try {
+			Client _client = clientRepository.save(new Client(client.getNom() ,client.getFonction(),client.getSalaire()));
+			return new ResponseEntity<>(_client, HttpStatus.CREATED);
+			
+		} catch (Exception e) {
+			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	
-	@PostMapping
-	public Client create(@RequestBody Client user) {
-		clients.add(user);
-		System.out.println(clients);
-		return user;
-		}
+	@PutMapping("/clients/{id}")
 	
-	private static List<Client> createList(){
-		List<Client> tempClients = new ArrayList<>();
-		Client cl1 = new Client();
-		cl1.setNom("client1");
-		cl1.setFonction("manager");
-		cl1.setId("1");
-		cl1.setSalaire(2500);
+	public ResponseEntity<Client> updateClient(@PathVariable("id") long id ,@RequestBody Client client){
+		Optional<Client> clientData = clientRepository.findById(id);
 		
-		Client cl2 = new Client();
-		cl2.setNom("client2");
-		cl2.setFonction("developer");
-		cl2.setId("2");
-		cl2.setSalaire(5000);
-		
-		tempClients.add(cl1);
-		tempClients.add(cl2);
-		
-		return tempClients;
+		if(clientData.isPresent()) {
+			Client _client = clientData.get();
+			_client.setNom(client.getNom());
+			_client.setFonction(client.getFonction());
+			_client.setSalaire(client.getSalaire());
+			return new ResponseEntity<>(clientRepository.save(_client),HttpStatus.OK);
+			
+		}else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 		
 	}
-	
 
 }
